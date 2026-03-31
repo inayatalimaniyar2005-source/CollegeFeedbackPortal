@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Feedback Portal</title>
+    <!-- Google Fonts & Font Awesome for Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #6a5af9;
+            --secondary: #d63384;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 { margin: 0; font-size: 2.2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { opacity: 0.9; font-weight: 300; }
+
+        .container {
+            background: var(--glass);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* --- UI Components --- */
+        .hidden { display: none !important; }
+
+        .tab-group {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            color: #666;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        label { display: block; margin: 15px 0 5px; font-weight: 600; font-size: 0.9rem; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(106, 90, 249, 0.3); }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* --- Specific Styles --- */
+        .rating-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .rating-item {
+            text-align: center;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .rating-item input { display: none; }
+        .rating-item span {
+            display: block;
+            padding: 10px;
+            background: #eee;
+            border-radius: 8px;
+            margin: 2px;
+            font-size: 0.8rem;
+        }
+
+        .rating-item input:checked + span {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .admin-table th, .admin-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.85rem;
+        }
+
+        .search-bar {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1><i class="fas fa-graduation-cap"></i> Shantabai Shivram Pawar College</h1>
+        <p>Ambegaon Khurd, Katraj, Pune - Feedback Portal</p>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="container">
+        <h2 style="text-align: center; margin-top: 0;"><i class="fas fa-sign-in-alt"></i> Login Portal</h2>
+        
+        <div class="tab-group">
+            <div id="student-tab" class="tab active" onclick="setRole('student')"><i class="fas fa-user-graduate"></i> Student</div>
+            <div id="admin-tab" class="tab" onclick="setRole('admin')"><i class="fas fa-user-shield"></i> Admin</div>
+        </div>
+
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter username">
+
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter password">
+
+        <button onclick="handleLogin()">LOGIN <i class="fas fa-arrow-right"></i></button>
+    </div>
+
+    <!-- STUDENT FEEDBACK FORM -->
+    <div id="feedback-form" class="container hidden">
+        <h2 style="color: var(--primary);">Student Feedback Form</h2>
+        <p><strong>College:</strong> Shantabai Shivram Pawar College, Ambegaon, Pune</p>
+        <hr>
+
+        <label>Your Name</label>
+        <input type="text" id="studentName" placeholder="Enter your full name">
+
+        <label>Academic Class</label>
+        <select id="academicClass" onchange="checkCustom(this, 'customClassDiv')">
+            <option value="BCS">BCS</option>
+            <option value="BSC">BSC</option>
+            <option value="BCA">BCA</option>
+            <option value="MCS">MCS</option>
+            <option value="MSC">MSC</option>
+            <option value="BBA">BBA</option>
+            <option value="MBA">MBA</option>
+            <option value="custom">-- Add Custom Class --</option>
+        </select>
+        <div id="customClassDiv" class="hidden" style="margin-top: 10px;">
+            <input type="text" id="customClassInput" placeholder="Enter your class name">
+        </div>
+
+        <label>Academic Year</label>
+        <select id="academicYear">
+            <option>2020-21</option>
+            <option>2021-22</option>
+            <option>2023-24</option>
+            <option>2025-26</option>
+            <option>2026-27</option>
+        </select>
+
+        <label>Overall Rating</label>
+        <div class="rating-group">
+            <label class="rating-item"><input type="radio" name="rating" value="1"><span>1 Poor</span></label>
+            <label class="rating-item"><input type="radio" name="rating" value="2"><span>2 Fair</span></label>
+            <label class="rating-item"><input type="radio" name="rating" value="3"><span>3 Good</span></label>
+            <label class="rating-item"><input type="radio" name="rating" value="4"><span>4 V. Good</span></label>
+            <label class="rating-item"><input type="radio" name="rating" value="5"><span>5 Excellent</span></label>
+        </div>
+
+        <label>Feedback Category</label>
+        <select id="category" onchange="checkCustom(this, 'customCatDiv')">
+            <option>Laboratories</option>
+            <option>Pharmacies</option>
+            <option>Classrooms</option>
+            <option>Washrooms</option>
+            <option>Sports Grounds</option>
+            <option>Teaching Staff</option>
+            <option>Accounts Staff</option>
+            <option>Transport</option>
+            <option>custom">-- Add Custom Category --</option>
+        </select>
+        <div id="customCatDiv" class="hidden" style="margin-top: 10px;">
+            <input type="text" id="customCatInput" placeholder="Enter category">
+        </div>
+
+        <label>Self Feedback / Thoughts</label>
+        <textarea id="note" rows="4" placeholder="Write your concerns, queries, or good/bad things here..."></textarea>
+
+        <button onclick="submitFeedback()" style="background: var(--secondary);">SUBMIT FEEDBACK</button>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="admin-dashboard" class="container hidden" style="max-width: 900px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: var(--primary);">Feedback Dashboard</h2>
+            <button onclick="logout()" style="width: auto; margin: 0; padding: 10px 20px; background: #666;">Logout</button>
+        </div>
+        
+        <input type="text" id="searchBar" class="search-bar" placeholder="🔍 Search by student name..." onkeyup="filterFeedbacks()">
+
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Year</th>
+                        <th>Rating</th>
+                        <th>Category</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody id="feedbackTableBody">
+                    <!-- Data will appear here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'student';
+        let feedbackData = JSON.parse(localStorage.getItem('collegeFeedbacks')) || [];
+
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('student-tab').classList.toggle('active', role === 'student');
+            document.getElementById('admin-tab').classList.toggle('active', role === 'admin');
+        }
+
+        function handleLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            if (currentRole === 'student' && user === 'student' && pass === 'student123') {
+                showScreen('feedback-form');
+            } else if (currentRole === 'admin' && user === 'admin' && pass === 'admin123') {
+                loadAdminData();
+                showScreen('admin-dashboard');
+            } else {
+                alert("Invalid Credentials! Please check username and password.");
+            }
+        }
+
+        function showScreen(screenId) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('feedback-form').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function checkCustom(select, divId) {
+            const div = document.getElementById(divId);
+            div.classList.toggle('hidden', select.value !== 'custom');
+        }
+
+        function submitFeedback() {
+            const name = document.getElementById('studentName').value;
+            const rating = document.querySelector('input[name="rating"]:checked');
+            
+            if(!name || !rating) {
+                alert("Please enter your name and select a rating!");
+                return;
+            }
+
+            const feedback = {
+                name: name,
+                class: document.getElementById('academicClass').value === 'custom' ? document.getElementById('customClassInput').value : document.getElementById('academicClass').value,
+                year: document.getElementById('academicYear').value,
+                rating: rating.value,
+                category: document.getElementById('category').value === 'custom' ? document.getElementById('customCatInput').value : document.getElementById('category').value,
+                note: document.getElementById('note').value
+            };
+
+            feedbackData.push(feedback);
+            localStorage.setItem('collegeFeedbacks', JSON.stringify(feedbackData));
+
+            alert("Feedback submitted successfully!");
+            logout();
+        }
+
+        function loadAdminData() {
+            const tbody = document.getElementById('feedbackTableBody');
+            tbody.innerHTML = '';
+            feedbackData.forEach(item => {
+                const row = `<tr>
+                    <td>${item.name}</td>
+                    <td>${item.class}</td>
+                    <td>${item.year}</td>
+                    <td><b>${item.rating}/5</b></td>
+                    <td>${item.category}</td>
+                    <td>${item.note}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function filterFeedbacks() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const rows = document.querySelectorAll('#feedbackTableBody tr');
+            rows.forEach(row => {
+                const name = row.cells[0].innerText.toLowerCase();
+                row.style.display = name.includes(query) ? '' : 'none';
+            });
+        }
+
+        function logout() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            // Reset form
+            document.getElementById('studentName').value = '';
+            document.getElementById('note').value = '';
+            showScreen('login-screen');
+        }
+    </script>
+</body>
+</html>
